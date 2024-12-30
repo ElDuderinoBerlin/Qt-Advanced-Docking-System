@@ -1,7 +1,3 @@
-![ukraine](doc/ukraine.jpg)
-
-![logo](doc/ads_logo.svg)
-
 ------------------
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/githubuser0xFFFF/Qt-Advanced-Docking-System?color=%23ff9833)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
