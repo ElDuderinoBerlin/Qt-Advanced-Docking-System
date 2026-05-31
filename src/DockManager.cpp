@@ -41,6 +41,7 @@
 #include <QVariant>
 #include <QDebug>
 #include <QFile>
+#include <QDialog>
 #include <QAction>
 #include <QXmlStreamWriter>
 #include <QSettings>
@@ -202,6 +203,10 @@ DockManagerPrivate::DockManagerPrivate(CDockManager* _public) :
 //============================================================================
 void DockManagerPrivate::loadStylesheet()
 {
+	if (CDockManager::testConfigFlag(CDockManager::DisableStylesheet))
+	{
+		return;
+	}
 	initResource();
 	QString Result;
 	QString FileName = ":ads/stylesheets/";
@@ -530,14 +535,45 @@ CDockManager::CDockManager(QWidget *parent) :
 	window()->installEventFilter(this);
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-    connect(qApp, &QApplication::focusWindowChanged, [](QWindow* focusWindow)
+    connect(qApp, &QApplication::focusWindowChanged, this, [this](QWindow* focusWindow)
     {
-        // bring modal dialogs to foreground to ensure that they are in front of any
-        // floating dock widget
-        if (focusWindow && focusWindow->isModal())
+        if (!focusWindow)
         {
-            focusWindow->raise();
+            return;
         }
+
+        auto widget = QWidget::find(focusWindow->winId());
+        if (!widget)
+        {
+            return;
+        }
+
+        // If the user clicks the main window or drags a floating widget or works with a
+        // modal dialog, then raise the main window, all floating widgets and the focus window
+        // itself to bring it into foreground of any other application.
+        bool raise = qobject_cast<QMainWindow*>(widget)
+            || qobject_cast<ads::CFloatingDockContainer*>(widget);
+        if (auto dialog = qobject_cast<QDialog*>(widget))
+        {
+            raise |= dialog->isModal();
+        }
+        if (!raise)
+        {
+            return;
+        }
+
+        this->raise();
+        for (auto FloatingWidget : d->FloatingWidgets)
+        {
+            if (FloatingWidget)
+            {
+                FloatingWidget->raise();
+            }
+        }
+
+        // ensure that the dragged floating window is in front of the main application window
+        // and any other floating widget - this will also ensure that modal dialogs come to foreground
+        focusWindow->raise();
     });
 #endif
 }
@@ -555,7 +591,7 @@ CDockManager::~CDockManager()
 	{
 		if (!area || area->dockManager() != this) continue;
 
-		// QPointer delete safety - just in case some dock wigdet in destruction
+		// QPointer delete safety - just in case some dock widget in destruction
 		// deletes another related/twin or child dock widget.
 		std::vector<QPointer<QWidget>> deleteWidgets;
 		for ( auto widget : area->dockWidgets() )
@@ -736,7 +772,8 @@ void CDockManager::registerFloatingWidget(CFloatingDockContainer* FloatingWidget
 //============================================================================
 void CDockManager::removeFloatingWidget(CFloatingDockContainer* FloatingWidget)
 {
-	d->FloatingWidgets.removeAll(FloatingWidget);
+	int removed = d->FloatingWidgets.removeAll(FloatingWidget);
+	Q_ASSERT(removed == 1);
 }
 
 //============================================================================
@@ -751,7 +788,8 @@ void CDockManager::removeDockContainer(CDockContainerWidget* DockContainer)
 {
 	if (this != DockContainer)
 	{
-		d->Containers.removeAll(DockContainer);
+		int removed = d->Containers.removeAll(DockContainer);
+		Q_ASSERT(removed == 1);
 	}
 }
 
@@ -1520,6 +1558,16 @@ void CDockManager::setConfigParam(CDockManager::eConfigParam Param, QVariant Val
 QVariant CDockManager::configParam(eConfigParam Param, QVariant Default)
 {
 	return StaticConfigParams[Param].isValid() ? StaticConfigParams[Param] : Default;
+}
+
+
+//===========================================================================
+void CDockManager::raise()
+{
+    if (parentWidget())
+    {
+        parentWidget()->raise();
+    }
 }
 
 

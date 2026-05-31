@@ -64,8 +64,13 @@ struct AutoHideTabPrivate;
  * of the docking system. The dock manager uses an internal stylesheet to
  * style its components like splitters, tabs and buttons. If you want to
  * disable this stylesheet because your application uses its own,
- * just call the function for settings the stylesheet with an empty
- * string.
+ * you can either set the DisableStylesheet config flag before creating
+ * the dock manager:
+ * \code
+ * CDockManager::setConfigFlag(CDockManager::DisableStylesheet, true);
+ * \endcode
+ * Or call the function for settings the stylesheet with an empty string
+ * after creating the dock manager:
  * \code
  * DockManager->setStyleSheet("");
  * \endcode
@@ -216,6 +221,9 @@ public:
 		DisableTabTextEliding =      0x4000000, //! Set this flag to disable eliding of tab texts in dock area tabs
 		ShowTabTextOnlyForActiveTab =0x8000000, //! Set this flag to show label texts in dock area tabs only for active tabs
 		DoubleClickUndocksWidget = 0x10000000, //!< If the flag is set, a double click on a tab undocks the widget
+		TabsAtBottom = 0x20000000, //!< If the flag is set, tabs will be shown at the bottom instead of in the title bar.
+		UseNativeWindows = 0x40000000, //!< If the flag is set, windows for the dock and area widgets will be native.
+		DisableStylesheet = 0x80000000, //!< If the flag is set, the dock manager will not apply the default stylesheet
 
 
         DefaultDockAreaButtons = DockAreaHasCloseButton
@@ -258,10 +266,12 @@ public:
 		AutoHideHasCloseButton = 0x80, //< If the flag is set an auto hide title bar has a close button
 		AutoHideHasMinimizeButton = 0x100, ///< if this flag is set, the auto hide title bar has a minimize button to collapse the dock widget
         AutoHideOpenOnDragHover = 0x200,  ///< if this flag is set, dragging hover the tab bar will open the dock
+        AutoHideCloseOnOutsideMouseClick = 0x400, ///< if this flag is set, the auto hide dock container will collapse if the user clicks outside of the container, if not set, the auto hide container can be closed only via click on sidebar tab
 
 		DefaultAutoHideConfig = AutoHideFeatureEnabled
 			                  | DockAreaHasAutoHideButton
 			                  | AutoHideHasMinimizeButton
+			                  | AutoHideCloseOnOutsideMouseClick
 
 	};
     Q_DECLARE_FLAGS(AutoHideFlags, eAutoHideFlag)
@@ -767,6 +777,12 @@ public Q_SLOTS:
      * hides the CDockManager but not the floating widgets;
      */
     void hideManagerAndFloatingWidgets();
+
+    /**
+     * Calls raise() for the widget that hosts this dock manager.
+     * This will bring the widget in front of any other application that is running
+     */
+    void raise();
 
 Q_SIGNALS:
 	/**

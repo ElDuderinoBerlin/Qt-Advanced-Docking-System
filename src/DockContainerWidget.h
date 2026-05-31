@@ -60,7 +60,7 @@ struct AutoHideDockContainerPrivate;
 
 /**
  * Container that manages a number of dock areas with single dock widgets
- * or tabyfied dock widgets in each area.
+ * or tabified dock widgets in each area.
  * Each window that support docking has a DockContainerWidget. That means
  * the main application window and all floating windows contain a 
  * DockContainerWidget instance.
@@ -85,6 +85,9 @@ private:
 	friend AutoHideTabPrivate;
 	friend AutoHideDockContainerPrivate;
 	friend CAutoHideSideBar;
+
+private Q_SLOTS:
+	void removeFromDockManager();
 
 protected:
 	/**
@@ -219,7 +222,7 @@ public:
 	/**
 	 * Virtual Destructor
 	 */
-	virtual ~CDockContainerWidget();
+    ~CDockContainerWidget() override;
 
 	/**
 	 * Adds dockwidget into the given area.

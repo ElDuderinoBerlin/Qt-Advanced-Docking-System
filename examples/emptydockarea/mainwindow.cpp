@@ -19,8 +19,6 @@
 #include <QToolBar>
 
 #include "DockAreaWidget.h"
-#include "DockAreaTitleBar.h"
-#include "DockAreaTabBar.h"
 #include "FloatingDockContainer.h"
 #include "DockComponentsFactory.h"
 
@@ -44,7 +42,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     QLabel* label = new QLabel();
     label->setText("This is a DockArea which is always visible, even if it does not contain any DockWidgets.");
     label->setAlignment(Qt::AlignCenter);
-    CDockWidget* CentralDockWidget = new CDockWidget("CentralWidget");
+    CDockWidget* CentralDockWidget = DockManager->createDockWidget("CentralWidget");
     CentralDockWidget->setWidget(label);
     CentralDockWidget->setFeature(ads::CDockWidget::NoTab, true);
     auto* CentralDockArea = DockManager->setCentralWidget(CentralDockWidget);
@@ -53,7 +51,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     QTableWidget* table = new QTableWidget();
     table->setColumnCount(3);
     table->setRowCount(10);
-    CDockWidget* TableDockWidget = new CDockWidget("Table 1");
+    CDockWidget* TableDockWidget = DockManager->createDockWidget("Table 1");
     TableDockWidget->setWidget(table);
     TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
     TableDockWidget->resize(250, 150);
@@ -65,7 +63,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     table = new QTableWidget();
     table->setColumnCount(5);
     table->setRowCount(1020);
-    TableDockWidget = new CDockWidget("Table 2");
+    TableDockWidget = DockManager->createDockWidget("Table 2");
     TableDockWidget->setWidget(table);
     TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
     TableDockWidget->resize(250, 150);
@@ -76,7 +74,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     QTableWidget* propertiesTable = new QTableWidget();
     propertiesTable->setColumnCount(3);
     propertiesTable->setRowCount(10);
-    CDockWidget* PropertiesDockWidget = new CDockWidget("Properties");
+    CDockWidget* PropertiesDockWidget = DockManager->createDockWidget("Properties");
     PropertiesDockWidget->setWidget(propertiesTable);
     PropertiesDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
     PropertiesDockWidget->resize(250, 150);

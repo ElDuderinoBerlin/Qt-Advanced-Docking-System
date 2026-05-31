@@ -27,6 +27,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     CDockManager::setConfigFlag(CDockManager::OpaqueSplitterResize, true);
     CDockManager::setConfigFlag(CDockManager::XmlCompressionEnabled, false);
     CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
+    CDockManager::setConfigFlag(CDockManager::TabsAtBottom, true);
     CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
     CDockManager::setAutoHideConfigFlag(CDockManager::AutoHideOpenOnDragHover, true);
     CDockManager::setConfigParam(CDockManager::AutoHideOpenOnDragHoverDelay_ms, 500);
@@ -35,14 +36,14 @@ CMainWindow::CMainWindow(QWidget *parent)
     // Set central widget
     QPlainTextEdit* w = new QPlainTextEdit();
 	w->setPlaceholderText("This is the central editor. Enter your text here.");
-    CDockWidget* CentralDockWidget = new CDockWidget("CentralWidget");
+    CDockWidget* CentralDockWidget = DockManager->createDockWidget("CentralWidget");
     CentralDockWidget->setWidget(w);
     auto* CentralDockArea = DockManager->setCentralWidget(CentralDockWidget);
     CentralDockArea->setAllowedAreas(DockWidgetArea::OuterDockAreas);
 
     {
     	DroppableItem* droppableItem = new DroppableItem("Drop text here.");
-		CDockWidget* dropDockWidget = new CDockWidget("Tab 1");
+        CDockWidget* dropDockWidget = DockManager->createDockWidget("Tab 1");
 		dropDockWidget->setWidget(droppableItem);
 		dropDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
 		dropDockWidget->setMinimumSize(200,150);
@@ -54,7 +55,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     }
     {
     	DroppableItem* droppableItem = new DroppableItem("Drop text here.");
-		CDockWidget* dropDockWidget = new CDockWidget("Tab 2");
+        CDockWidget* dropDockWidget = DockManager->createDockWidget("Tab 2");
 		dropDockWidget->setWidget(droppableItem);
 		dropDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
 		dropDockWidget->setMinimumSize(200,150);
@@ -68,7 +69,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     QTableWidget* propertiesTable = new QTableWidget();
     propertiesTable->setColumnCount(3);
     propertiesTable->setRowCount(10);
-    CDockWidget* PropertiesDockWidget = new CDockWidget("Properties");
+    CDockWidget* PropertiesDockWidget = DockManager->createDockWidget("Properties");
     PropertiesDockWidget->setWidget(propertiesTable);
     PropertiesDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
     PropertiesDockWidget->resize(250, 150);
